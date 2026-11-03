@@ -28,6 +28,17 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Version de Lombok, alineada con la que gestiona spring-boot-dependencies.
+		     Se declara aqui para que el IDE (m2e) pueda resolver el annotationProcessorPath
+		     aunque no consiga leer el dependencyManagement del parent. -->
+		<lombok.version>1.18.48</lombok.version>
+		<!-- Workaround del bug de m2e (eclipse-m2e/m2e-core#2084 / fix #2124):
+		     maven-jar-plugin >= 3.5.0 necesita el SessionScope al construir JarMojo y
+		     m2e < 2.11.0 (Eclipse <= 2025-12) falla con
+		     "Cannot access Key[type=...MavenProject...] outside of a scoping block"
+		     (marcador org.eclipse.m2e.core.maven2Problem.mavenarchiver.error).
+		     Spring Boot 4.1.2 fija 3.5.1; se baja a 3.4.2 mientras se use un Eclipse antiguo. -->
+		<maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -102,6 +113,7 @@
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
+									<version>${lombok.version}</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>
@@ -117,6 +129,7 @@
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
+									<version>${lombok.version}</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>
