@@ -1,0 +1,429 @@
+{
+  "info": {
+    "name": "NETFLIX-APP Microservices",
+    "description": "Postman collection for the Netflix Streaming microservices architecture.\n\nServices included:\n- content-service (port 8081): Movie catalog management\n- video-service (port 8082): Video upload to S3\n- encoding-service (port 8083): Video encoding (Kafka only, no REST)\n- streaming-service (port 8084): HLS streaming with signed URLs\n\nBase URLs:\n- content-service: http://localhost:8081\n- video-service: http://localhost:8082\n- streaming-service: http://localhost:8084",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_variable_scope": "collection",
+    "_postman_exported_at": "2026-11-06"
+  },
+  "variable": [
+    {
+      "key": "content-service-url",
+      "value": "http://localhost:8081",
+      "type": "string",
+      "description": "Content Service base URL"
+    },
+    {
+      "key": "video-service-url",
+      "value": "http://localhost:8082",
+      "type": "string",
+      "description": "Video Service base URL"
+    },
+    {
+      "key": "streaming-service-url",
+      "value": "http://localhost:8084",
+      "type": "string",
+      "description": "Streaming Service base URL"
+    },
+    {
+      "key": "movieId",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string",
+      "description": "Example movie UUID"
+    },
+    {
+      "key": "genre",
+      "value": "SCI_FI",
+      "type": "string",
+      "description": "Movie genre (ACTION, COMEDY, DRAMA, HORROR, SCI_FI, THRILLER, ROMANCE, DOCUMENTARY, ANIMATION, OTHER)"
+    },
+    {
+      "key": "playlistPath",
+      "value": "encoded/550e8400-e29b-41d4-a716-446655440000/master.m3u8",
+      "type": "string",
+      "description": "S3 path to the master playlist"
+    }
+  ],
+  "item": [
+    {
+      "name": "Content Service",
+      "description": "Movie catalog operations: create, list, search, and filter movies.",
+      "item": [
+        {
+          "name": "Add Movie",
+          "description": "Creates a new movie in the catalog with PENDING status. The video file has not been uploaded yet.\n\n**Validations:**\n- title: required, max 255 chars\n- description: max 1000 chars\n- genre: required enum\n- director: max 255 chars\n- cast: max 255 chars\n- releaseYear: 1900-2100\n- rating: 0.0-10.0\n- thumbnailUrl: max 500 chars\n- durationMinutes: minimum 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Inception\",\n  \"description\": \"A thief who steals corporate secrets through dream-sharing technology.\",\n  \"genre\": \"SCI_FI\",\n  \"director\": \"Christopher Nolan\",\n  \"cast\": \"Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page\",\n  \"releaseYear\": 2010,\n  \"rating\": 8.8,\n  \"thumbnailUrl\": \"https://example.com/inception.jpg\",\n  \"durationMinutes\": 148\n}"
+            },
+            "url": {
+              "raw": "{{content-service-url}}/api/v1/movies",
+              "host": ["{{content-service-url}}"],
+              "path": ["api", "v1", "movies"]
+            },
+            "description": "POST /api/v1/movies - Add a new movie to the catalog"
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "201",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"title\": \"Inception\",\n  \"description\": \"A thief who steals corporate secrets through dream-sharing technology.\",\n  \"genre\": \"SCI_FI\",\n  \"director\": \"Christopher Nolan\",\n  \"cast\": \"Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page\",\n  \"releaseYear\": 2010,\n  \"rating\": 8.8,\n  \"thumbnailUrl\": \"https://example.com/inception.jpg\",\n  \"durationMinutes\": 148,\n  \"videoKey\": null,\n  \"videoStatus\": \"PENDING\",\n  \"hlsUrl\": null,\n  \"createdAt\": \"2024-01-15T10:30:00\"\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "status": "400",
+              "code": 400,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Validation failed for fields: title, genre\",\n  \"path\": \"/api/v1/movies\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List All Movies",
+          "description": "Returns the complete catalog of all movies stored in the database.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{content-service-url}}/api/v1/movies",
+              "host": ["{{content-service-url}}"],
+              "path": ["api", "v1", "movies"]
+            },
+            "description": "GET /api/v1/movies - List all movies"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"title\": \"Inception\",\n    \"genre\": \"SCI_FI\",\n    \"videoStatus\": \"READY\",\n    \"hlsUrl\": \"https://s3.amazonaws.com/bucket/encoded/550e8400/master.m3u8\"\n  },\n  {\n    \"id\": \"661e8400-e29b-41d4-a716-446655440001\",\n    \"title\": \"The Matrix\",\n    \"genre\": \"ACTION\",\n    \"videoStatus\": \"UPLOADED\",\n    \"hlsUrl\": null\n  }\n]"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "404",
+              "code": 404,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"No movies found\",\n  \"path\": \"/api/v1/movies\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Movie by ID",
+          "description": "Returns the details of a specific movie given its unique identifier.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{content-service-url}}/api/v1/movies/{movieId}",
+              "host": ["{{content-service-url}}"],
+              "path": ["api", "v1", "movies", "{{movieId}}"]
+            },
+            "description": "GET /api/v1/movies/{movieId} - Get movie by ID",
+            "variable": [
+              {
+                "key": "movieId",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "Unique identifier of the movie"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"title\": \"Inception\",\n  \"description\": \"A thief who steals corporate secrets through dream-sharing technology.\",\n  \"genre\": \"SCI_FI\",\n  \"director\": \"Christopher Nolan\",\n  \"cast\": \"Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page\",\n  \"releaseYear\": 2010,\n  \"rating\": 8.8,\n  \"thumbnailUrl\": \"https://example.com/inception.jpg\",\n  \"durationMinutes\": 148,\n  \"videoKey\": \"encoded/550e8400/1080p/video.ts\",\n  \"videoStatus\": \"READY\",\n  \"hlsUrl\": \"https://s3.amazonaws.com/bucket/encoded/550e8400/master.m3u8\",\n  \"createdAt\": \"2024-01-15T10:30:00\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "404",
+              "code": 404,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Movie not found: 550e8400-e29b-41d4-a716-446655440000\",\n  \"path\": \"/api/v1/movies/550e8400-e29b-41d4-a716-446655440000\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Movies by Genre",
+          "description": "Returns all movies that match the specified genre.\n\n**Valid genres:** ACTION, COMEDY, DRAMA, HORROR, SCI_FI, THRILLER, ROMANCE, DOCUMENTARY, ANIMATION, OTHER",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{content-service-url}}/api/v1/movies/genre/{genre}",
+              "host": ["{{content-service-url}}"],
+              "path": ["api", "v1", "movies", "genre", "{{genre}}"]
+            },
+            "description": "GET /api/v1/movies/genre/{genre} - Get movies by genre",
+            "variable": [
+              {
+                "key": "genre",
+                "value": "SCI_FI",
+                "description": "Movie genre"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"title\": \"Inception\",\n    \"genre\": \"SCI_FI\",\n    \"videoStatus\": \"READY\"\n  }\n]"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "404",
+              "code": 404,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"No movies found for that genre\",\n  \"path\": \"/api/v1/movies/genre/SCI_FI\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search Movies by Title",
+          "description": "Performs a case-insensitive search of movies whose title contains the given text.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{content-service-url}}/api/v1/movies/search?title={{title}}",
+              "host": ["{{content-service-url}}"],
+              "path": ["api", "v1", "movies", "search"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "Inception",
+                  "description": "Text to search in the title (required)"
+                }
+              ]
+            },
+            "description": "GET /api/v1/movies/search?title= - Search movies by title"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"title\": \"Inception\",\n    \"genre\": \"SCI_FI\",\n    \"videoStatus\": \"READY\"\n  },\n  {\n    \"id\": \"772e8400-e29b-41d4-a716-446655440002\",\n    \"title\": \"Inception: The Sequel\",\n    \"genre\": \"SCI_FI\",\n    \"videoStatus\": \"UPLOADED\"\n  }\n]"
+            },
+            {
+              "name": "400 Bad Request",
+              "status": "400",
+              "code": 400,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"The title parameter is required\",\n  \"path\": \"/api/v1/movies/search\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Video Service",
+      "description": "Video upload operations. Uploads video files to S3 and publishes Kafka events to start encoding.",
+      "item": [
+        {
+          "name": "Upload Video",
+          "description": "Uploads a video file to S3 for a specific movie and publishes a Kafka event (video.uploaded) to start the encoding pipeline.\n\n**Path Parameters:**\n- movieId: Required. Identifier of the movie to associate the video with.\n\n**Form Data:**\n- file: Required. Video file (multipart) to upload to S3.",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Video file to upload (e.g., movie.mp4)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{video-service-url}}/api/v1/videos/upload/{movieId}",
+              "host": ["{{video-service-url}}"],
+              "path": ["api", "v1", "videos", "upload", "{{movieId}}"]
+            },
+            "description": "POST /api/v1/videos/upload/{movieId} - Upload video to S3",
+            "variable": [
+              {
+                "key": "movieId",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "Movie ID (path variable, must not be blank)"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Video uploaded successfully! Key: encoded/550e8400-e29b-41d4-a716-446655440000/raw_video.mp4 — Encoding started automatically via Kafka"
+            },
+            {
+              "name": "400 Bad Request",
+              "status": "400",
+              "code": 400,
+              "body": "File is empty"
+            },
+            {
+              "name": "400 Bad Request (validation)",
+              "status": "400",
+              "code": 400,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"movieId must not be blank\",\n  \"path\": \"/api/v1/videos/upload/\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "404",
+              "code": 404,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Movie not found: 550e8400-e29b-41d4-a716-446655440000\",\n  \"path\": \"/api/v1/videos/upload/550e8400-e29b-41d4-a716-446655440000\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Streaming Service",
+      "description": "HLS streaming operations. Retrieves signed URLs for secure video playback.",
+      "item": [
+        {
+          "name": "Get Streaming URL",
+          "description": "Returns the presigned URL of the HLS master playlist for a movie. Checks Redis cache first; if not cached, generates a new presigned URL and caches it for 55 minutes.\n\n**Path Parameters:**\n- movieId: Required. Identifier of the movie.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{streaming-service-url}}/api/v1/stream/{movieId}",
+              "host": ["{{streaming-service-url}}"],
+              "path": ["api", "v1", "stream", "{{movieId}}"]
+            },
+            "description": "GET /api/v1/stream/{movieId} - Get streaming URL",
+            "variable": [
+              {
+                "key": "movieId",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "Movie ID (must not be blank)"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"movieId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"streamingUrl\": \"https://s3.amazonaws.com/bucket/encoded/550e8400/master.m3u8?X-Amz-Signature=abc123def456\",\n  \"qualities\": \"1080p, 720p, 480p, 360p\",\n  \"expiresIn\": 3600\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "404",
+              "code": 404,
+              "body": "{\n  \"timestamp\": \"2024-01-15T10:30:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Movie not ready for streaming: 550e8400-e29b-41d4-a716-446655440000\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Signed Playlist",
+          "description": "Returns the content of the m3u8 playlist with presigned URLs for each segment. Used by the HLS player to fetch individual video segments securely.\n\n**Path Parameters:**\n- movieId: Required. Identifier of the movie.\n\n**Query Parameters:**\n- path: Required. Path of the playlist in S3 (e.g., encoded/movieId/master.m3u8).",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{streaming-service-url}}/api/v1/stream/{movieId}/playlist?path={{playlistPath}}",
+              "host": ["{{streaming-service-url}}"],
+              "path": ["api", "v1", "stream", "{{movieId}}", "playlist"],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "encoded/550e8400-e29b-41d4-a716-446655440000/master.m3u8",
+                  "description": "Path of the playlist in S3"
+                }
+              ]
+            },
+            "description": "GET /api/v1/stream/{movieId}/playlist?path= - Get signed playlist",
+            "variable": [
+              {
+                "key": "movieId",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "Movie ID (must not be blank)"
+              },
+              {
+                "key": "playlistPath",
+                "value": "encoded/550e8400-e29b-41d4-a716-446655440000/master.m3u8",
+                "description": "S3 path to the m3u8 playlist (must not be blank)"
+              }
+            ]
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "200",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/x-mpegURL"
+                }
+              ],
+              "body": "#EXTM3U\n#EXT-X-VERSION:3\n\n#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS=\"avc1.42e01e,mp4a.40.2\"\nhttps://s3.amazonaws.com/bucket/encoded/550e8400/1080p/playlist.m3u8?X-Amz-Signature=abc123\n\n#EXT-X-STREAM-INF:BANDWIDTH=2800000,RESOLUTION=1280x720,CODECS=\"avc1.42e01e,mp4a.40.2\"\nhttps://s3.amazonaws.com/bucket/encoded/550e8400/720p/playlist.m3u8?X-Amz-Signature=def456\n\n#EXT-X-STREAM-INF:BANDWIDTH=1400000,RESOLUTION=854x480,CODECS=\"avc1.42e01e,mp4a.40.2\"\nhttps://s3.amazonaws.com/bucket/encoded/550e8400/480p/playlist.m3u8?X-Amz-Signature=ghi789\n\n#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360,CODECS=\"avc1.42e01e,mp4a.40.2\"\nhttps://s3.amazonaws.com/bucket/encoded/550e8400/360p/playlist.m3u8?X-Amz-Signature=jkl012"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "404",
+              "code": 404,
+              "body": "Playlist not found"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Encoding Service (Kafka Only)",
+      "description": "The Encoding Service does not expose REST endpoints. It consumes video.uploaded events from Kafka, processes video encoding with FFmpeg, uploads encoded files to S3, and publishes video.encoded events to Kafka.\n\n**Kafka Topics:**\n- video.uploaded (consumed): Triggered when Video Service uploads a raw video to S3.\n- video.encoded (published): Published after encoding completes, with success/failure status.\n\n**No HTTP requests available for this service.**",
+      "item": []
+    }
+  ]
+}

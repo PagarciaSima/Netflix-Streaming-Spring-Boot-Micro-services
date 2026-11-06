@@ -79,8 +79,8 @@ public class ContentService {
     /**
      * Search movies by title.
      *
-     * @param title Parte del título a buscar (búsqueda insensible a mayúsculas).
-     * @return Lista de películas cuyo título contiene el texto indicado.
+     * @param title Part of the title to search (case-insensitive search).
+     * @return List of movies whose title contains the indicated text.
      */
     public List<MovieResponse> searchMovies(String title) {
         return movieRepository.findByTitleContainingIgnoreCase(title)
@@ -92,8 +92,8 @@ public class ContentService {
     /**
      * Update the S3 video key and set status to UPLOADED.
      *
-     * @param movieId  Identificador de la película.
-     * @param videoKey Clave (key) del vídeo subido en S3.
+     * @param movieId  Identifier of the movie.
+     * @param videoKey Key of the video uploaded to S3.
      */
     public void updateVideoKey(String movieId, String videoKey) {
         log.info("Updating video key for movie: {}", movieId);
@@ -108,8 +108,8 @@ public class ContentService {
     /**
      * Update the HLS URL and set status to READY, making the movie streamable.
      *
-     * @param movieId Identificador de la película.
-     * @param hlsUrl  URL del master playlist HLS.
+     * @param movieId Identifier of the movie.
+     * @param hlsUrl  URL of the HLS master playlist.
      */
     public void updateHlsUrl(String movieId, String hlsUrl) {
         log.info("Updating HLS URL for movie: {}", movieId);
@@ -126,8 +126,8 @@ public class ContentService {
     /**
      * Update the video processing status of a movie.
      *
-     * @param movieId Identificador de la película.
-     * @param status  Nuevo estado de procesamiento de vídeo.
+     * @param movieId Identifier of the movie.
+     * @param status  New video processing status.
      */
     public void updateVideoStatus(String movieId, VideoStatus status) {
         Movie movie = movieRepository.findById(movieId)

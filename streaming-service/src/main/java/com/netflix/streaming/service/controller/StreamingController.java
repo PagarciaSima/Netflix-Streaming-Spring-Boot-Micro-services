@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@Tag(name = "Streaming", description = "Reproducción de vídeo HLS con URLs firmadas (streaming-service)")
+@Tag(name = "Streaming", description = "HLS video playback with signed URLs (streaming-service)")
 public class StreamingController {
 
 	private final StreamingService streamingService;
@@ -35,18 +35,18 @@ public class StreamingController {
 	/**
 	 * Get streaming URL for movie.
 	 *
-	 * @param movieId Identificador de la película.
-	 * @return DTO con la URL presignada del master playlist HLS.
+	 * @param movieId Movie identifier.
+	 * @return DTO with the signed URL of the HLS master playlist.
 	 */
 	// Get streaming URL for movie
 	@GetMapping("/{movieId}")
-	@Operation(summary = "Obtener URL de streaming", description = "Devuelve la URL presignada del master playlist HLS para una película.")
+	@Operation(summary = "Get streaming URL", description = "Returns the signed URL of the HLS master playlist for a movie.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "URL de streaming generada", content = @Content(schema = @Schema(implementation = StreamingResponse.class))),
-			@ApiResponse(responseCode = "404", description = "Película no lista para streaming")
+			@ApiResponse(responseCode = "200", description = "Streaming URL generated", content = @Content(schema = @Schema(implementation = StreamingResponse.class))),
+			@ApiResponse(responseCode = "404", description = "Movie not ready for streaming")
 	})
 	public ResponseEntity<StreamingResponse> getStreamingUrl(
-			@Parameter(description = "ID de la película", required = true) @NotBlank @PathVariable String movieId) {
+			@Parameter(description = "Movie ID", required = true) @NotBlank @PathVariable String movieId) {
 
 		try {
 			StreamingResponse response = streamingService.getStreamingUrl(movieId);
@@ -63,19 +63,19 @@ public class StreamingController {
 	 * GET
 	 * /api/v1/stream/{movieId}/playlist?path=encoded/movieId/1080p/playlist.m3u8
 	 *
-	 * @param movieId Identificador de la película.
-	 * @param path    Ruta del playlist en S3.
-	 * @return Contenido del playlist m3u8 con URLs firmadas.
+	 * @param movieId Movie identifier.
+	 * @param path    Path of the playlist in S3.
+	 * @return Content of m3u8 playlist with signed URLs.
 	 */
 	@GetMapping("/{movieId}/playlist")
-	@Operation(summary = "Obtener playlist firmado", description = "Devuelve el contenido del playlist m3u8 con URLs presignadas para cada segmento.")
+	@Operation(summary = "Get signed playlist", description = "Returns the content of the m3u8 playlist with presigned URLs for each segment.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Playlist m3u8 con URLs firmadas"),
-			@ApiResponse(responseCode = "404", description = "Playlist no encontrado")
+			@ApiResponse(responseCode = "200", description = "m3u8 playlist with signed URLs"),
+			@ApiResponse(responseCode = "404", description = "Playlist not found")
 	})
 	public ResponseEntity<String> getSignedPlaylist(
-			@Parameter(description = "ID de la película", required = true) @NotBlank @PathVariable String movieId,
-			@Parameter(description = "Ruta del playlist en S3", required = true) @NotBlank @RequestParam String path) {
+			@Parameter(description = "Movie ID", required = true) @NotBlank @PathVariable String movieId,
+			@Parameter(description = "Path of the playlist in S3", required = true) @NotBlank @RequestParam String path) {
 
 		log.info("Playlist request for movie: {} path: {}", movieId, path);
 

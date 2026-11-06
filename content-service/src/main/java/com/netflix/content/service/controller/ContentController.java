@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/movies")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Content", description = "Operaciones del catálogo de películas (content-service)")
+@Tag(name = "Content", description = "Content catalog operations (content-service)")
 public class ContentController {
 
     private final ContentService contentService;
@@ -40,15 +40,15 @@ public class ContentController {
     /**
      * Add new movie to catalog.
      *
-     * @param request DTO con los datos de la película a crear.
-     * @return La película creada con su ID asignado y estado PENDING.
+     * @param request DTO with the data of the movie to create.
+     * @return The created movie with its assigned ID and PENDING status.
      */
     // Add new movie to catalog
     @PostMapping
-    @Operation(summary = "Añadir una nueva película al catálogo", description = "Crea una película con estado PENDING. El vídeo aún no se ha subido.")
+    @Operation(summary = "Add a new movie to the catalog", description = "Creates a movie with PENDING status. The video has not been uploaded yet.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Película creada correctamente", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos (validación fallida)")
+            @ApiResponse(responseCode = "201", description = "Movie created successfully", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data (validation failed)")
     })
     public ResponseEntity<MovieResponse> addMovie(
             @Valid @RequestBody MovieRequest request) {
@@ -59,14 +59,14 @@ public class ContentController {
     /**
      * Get all movies.
      *
-     * @return Lista de todas las películas del catálogo.
+     * @return List of all movies in the catalog.
      */
     // Get all movies
     @GetMapping
-    @Operation(summary = "Listar todas las películas", description = "Devuelve el catálogo completo de películas.")
+    @Operation(summary = "List all movies", description = "Returns the complete movie catalog.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de películas", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
-            @ApiResponse(responseCode = "404", description = "No se encontraron películas")
+            @ApiResponse(responseCode = "200", description = "List of movies", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
+            @ApiResponse(responseCode = "404", description = "No movies found")
     })
     public ResponseEntity<List<MovieResponse>> getAllMovies() {
         return ResponseEntity.ok(contentService.getAllMovies());
@@ -75,51 +75,51 @@ public class ContentController {
     /**
      * Get movie by ID.
      *
-     * @param movieId Identificador único de la película.
-     * @return La película solicitada.
+     * @param movieId Unique identifier of the movie.
+     * @return The requested movie.
      */
     // Get movie by ID
     @GetMapping("/{movieId}")
-    @Operation(summary = "Obtener película por ID", description = "Devuelve los detalles de una película dada su identificador.")
+    @Operation(summary = "Get movie by ID", description = "Returns the details of a movie given its identifier.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Película encontrada", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Película no encontrada")
+            @ApiResponse(responseCode = "200", description = "Movie found", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Movie not found")
     })
     public ResponseEntity<MovieResponse> getMovieById(
-            @Parameter(description = "ID de la película", required = true) @PathVariable String movieId) {
+            @Parameter(description = "Movie ID", required = true) @PathVariable String movieId) {
         return ResponseEntity.ok(contentService.getMovieById(movieId));
     }
 
     /**
      * Get movies by genre.
      *
-     * @param genre Género por el cual filtrar.
-     * @return Lista de películas del género indicado.
+     * @param genre Genre to filter by.
+     * @return List of movies of the indicated genre.
      */
     // Get movies by genre
     @GetMapping("/genre/{genre}")
-    @Operation(summary = "Obtener películas por género", description = "Devuelve todas las películas que coincidan con el género especificado.")
+    @Operation(summary = "Get movies by genre", description = "Returns all movies that match the specified genre.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de películas del género", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
-            @ApiResponse(responseCode = "404", description = "No se encontraron películas para ese género")
+            @ApiResponse(responseCode = "200", description = "List of movies of the genre", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
+            @ApiResponse(responseCode = "404", description = "No movies found for that genre")
     })
     public ResponseEntity<List<MovieResponse>> getMoviesByGenre(
-            @Parameter(description = "Género de la película", required = true) @PathVariable Genre genre) {
+            @Parameter(description = "Movie genre", required = true) @PathVariable Genre genre) {
         return ResponseEntity.ok(contentService.getMoviesByGenre(genre));
     }
 
     /**
      * Search movies by title.
      *
-     * @param title Parte del título a buscar (búsqueda insensible a mayúsculas).
-     * @return Lista de películas cuyo título contiene el texto dado.
+     * @param title Part of the title to search (case-insensitive search).
+     * @return List of movies whose title contains the given text.
      */
     // Search movies by title
     @GetMapping("/search")
-    @Operation(summary = "Buscar películas por título", description = "Realiza una búsqueda de películas cuyo título contenga la cadena indicada.")
+    @Operation(summary = "Search movies by title", description = "Performs a search of movies whose title contains the indicated string.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de películas encontradas", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
-            @ApiResponse(responseCode = "400", description = "El parámetro title es obligatorio")
+            @ApiResponse(responseCode = "200", description = "List of found movies", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
+            @ApiResponse(responseCode = "400", description = "The title parameter is required")
     })
     public ResponseEntity<List<MovieResponse>> searchMovies(
             @Parameter(description = "Texto a buscar en el título", required = true) @RequestParam String title) {

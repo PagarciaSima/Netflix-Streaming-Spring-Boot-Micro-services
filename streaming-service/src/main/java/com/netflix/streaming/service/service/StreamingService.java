@@ -42,8 +42,8 @@ public class StreamingService {
 	 * Get streaming URL for a movie. Reads master.m3u8 from S3, signs every segment
 	 * URL individually and returns the modified m3u8 as a string.
 	 *
-	 * @param movieId Identificador de la película.
-	 * @return DTO con la URL de streaming presignada y metadatos de calidad.
+	 * @param movieId Movie identifier.
+	 * @return DTO with the presigned streaming URL and quality metadata.
 	 */
 	public StreamingResponse getStreamingUrl(String movieId) {
 		log.info("Getting streaming URL for movie: {}", movieId);
@@ -85,9 +85,9 @@ public class StreamingService {
 	 * Rewritten m3u8: #EXTM3U https://s3.../1080p/playlist.m3u8?X-Amz-Signature=...
 	 * https://s3.../720p/playlist.m3u8?X-Amz-Signature=...
 	 *
-	 * @param movieId      Identificador de la película.
-	 * @param playlistPath Ruta del playlist m3u8 en S3.
-	 * @return Contenido del playlist m3u8 con URLs presignadas.
+	 * @param movieId      Movie identifier.
+	 * @param playlistPath Path of the m3u8 playlist in S3.
+	 * @return Content of m3u8 playlist with presigned URLs.
 	 */
 	public String getSignedPlaylist(String movieId, String playlistPath) {
 		log.info("Getting signed playlist for movie: {} path: {}", movieId, playlistPath);
@@ -145,8 +145,8 @@ public class StreamingService {
 	/**
 	 * Generate presigned URL for S3 object.
 	 *
-	 * @param s3Key Clave del objeto en S3.
-	 * @return URL presignada para acceder al objeto.
+	 * @param s3Key Key of the object in S3.
+	 * @return Presigned URL to access the object.
 	 */
 	private String generatePresignedUrl(String s3Key) {
 		GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(s3Key).build();
@@ -160,7 +160,7 @@ public class StreamingService {
 	/**
 	 * Invalidate cached URL.
 	 *
-	 * @param movieId Identificador de la película cuya caché se invalidará.
+	 * @param movieId Identifier of the movie whose cache will be invalidated.
 	 */
 	public void invalidateCache(String movieId) {
 		redisTemplate.delete(STREAMING_URL_CACHE_PREFIX + movieId);
