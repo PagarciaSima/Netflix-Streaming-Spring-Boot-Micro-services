@@ -30,9 +30,9 @@ server:
 aws:
   access-key: ${AWS_ACCESS_KEY:YOUR_AWS_ACCESS_KEY}
   secret-key: ${AWS_SECRET_KEY:YOUR_AWS_SECRET_KEY}
-  region: ${AWS_REGION:YOUR_REGION}
+  region: ${AWS_REGION:eu-north-1}
   s3:
-    bucket-name: ${AWS_BUCKET_NAME:netflix-streaming-videos-082499810116-eu-north-1-an}
+    bucket-name: ${AWS_BUCKET_NAME:netflix-streaming-videos-005723479002-eu-north-1-an}
 
 # FFmpeg Configuration
 ffmpeg:

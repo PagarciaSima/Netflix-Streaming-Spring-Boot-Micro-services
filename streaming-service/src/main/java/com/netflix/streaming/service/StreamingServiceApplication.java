@@ -1,4 +1,4 @@
-package com.netflix.streaming_service;
+package com.netflix.streaming.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

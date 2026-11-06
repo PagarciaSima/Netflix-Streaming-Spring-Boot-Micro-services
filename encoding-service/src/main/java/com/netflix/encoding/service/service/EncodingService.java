@@ -153,7 +153,7 @@ public class EncodingService {
      * - Multiple .ts segment files (10 seconds each)
      * - A .m3u8 playlist file for this quality
      */
-    private void encodeToHLS(String inputPath, String outputDir,
+    protected void encodeToHLS(String inputPath, String outputDir,
                               int width, int height, int bitrate) throws IOException, InterruptedException {
 
         String playlistPath = outputDir + "/playlist.m3u8";

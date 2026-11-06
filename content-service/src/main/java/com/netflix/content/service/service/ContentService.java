@@ -78,31 +78,43 @@ public class ContentService {
 
     /**
      * Search movies by title.
-     * @param title
-     * @return
+     *
+     * @param title Parte del título a buscar (búsqueda insensible a mayúsculas).
+     * @return Lista de películas cuyo título contiene el texto indicado.
      */
-
-    public List<MovieResponse> searchMovies(String title){
+    public List<MovieResponse> searchMovies(String title) {
         return movieRepository.findByTitleContainingIgnoreCase(title)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    public void updateVideoKey(String movieId, String videoKey){
-        log.info("Updating vdeokey for movie: {}", movieId);
+    /**
+     * Update the S3 video key and set status to UPLOADED.
+     *
+     * @param movieId  Identificador de la película.
+     * @param videoKey Clave (key) del vídeo subido en S3.
+     */
+    public void updateVideoKey(String movieId, String videoKey) {
+        log.info("Updating video key for movie: {}", movieId);
         Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new RuntimeException("Movie not Found: "+ movieId));
+                .orElseThrow(() -> new RuntimeException("Movie not found: " + movieId));
 
         movie.setVideoKey(videoKey);
         movie.setVideoStatus(VideoStatus.UPLOADED);
         movieRepository.save(movie);
     }
 
-    public void updateHlsUrl(String movieId, String hlsUrl){
+    /**
+     * Update the HLS URL and set status to READY, making the movie streamable.
+     *
+     * @param movieId Identificador de la película.
+     * @param hlsUrl  URL del master playlist HLS.
+     */
+    public void updateHlsUrl(String movieId, String hlsUrl) {
         log.info("Updating HLS URL for movie: {}", movieId);
         Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new RuntimeException("Movie not Found: "+ movieId));
+                .orElseThrow(() -> new RuntimeException("Movie not found: " + movieId));
 
         movie.setHlsUrl(hlsUrl);
         movie.setVideoStatus(VideoStatus.READY);
@@ -111,9 +123,15 @@ public class ContentService {
         log.info("Movie {} is now ready for streaming", movieId);
     }
 
-    public void updateVideoStatus(String movieId, VideoStatus status){
+    /**
+     * Update the video processing status of a movie.
+     *
+     * @param movieId Identificador de la película.
+     * @param status  Nuevo estado de procesamiento de vídeo.
+     */
+    public void updateVideoStatus(String movieId, VideoStatus status) {
         Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new RuntimeException("Movie not Found: "+ movieId));
+                .orElseThrow(() -> new RuntimeException("Movie not found: " + movieId));
         movie.setVideoStatus(status);
         movieRepository.save(movie);
     }
