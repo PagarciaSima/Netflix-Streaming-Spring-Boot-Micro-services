@@ -28,9 +28,9 @@ graph TB
     NG -->|Stream API| SS[Streaming Service<br/>Port 8084]
     NG -->|HLS Playback| HLS[HLS.js Player]
     
-    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef service fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-    classDef player fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef client fill:#1565c0,color:#ffffff,stroke:#01579b,stroke-width:2px
+    classDef service fill:#2e7d32,color:#ffffff,stroke:#1b5e20,stroke-width:2px
+    classDef player fill:#6a1b9a,color:#ffffff,stroke:#4a148c,stroke-width:2px
     
     class NG client
     class CS,VS,SS service

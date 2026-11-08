@@ -45,10 +45,10 @@ graph TB
     ES -->|Uploads encoded| S3
     ES -->|Publishes: video.encoded| KAFKA
 
-    classDef service fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef messaging fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef processing fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef service fill:#2e7d32,color:#ffffff,stroke:#1b5e20,stroke-width:2px
+    classDef storage fill:#e65100,color:#ffffff,stroke:#e65100,stroke-width:2px
+    classDef messaging fill:#6a1b9a,color:#ffffff,stroke:#4a148c,stroke-width:2px
+    classDef processing fill:#1565c0,color:#ffffff,stroke:#1565c0,stroke-width:2px
 
     class ES service
     class S3 storage
