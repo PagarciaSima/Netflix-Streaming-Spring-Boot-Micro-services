@@ -23,21 +23,37 @@ The **Encoding Service** is responsible for video transcoding. It consumes `vide
 
 ```mermaid
 graph TB
-    KAFKA[(Apache Kafka<br/>Port 9092)] -->|Consumes: video.uploaded| ES[Encoding Service<br/>Port 8083]
-    ES -->|Downloads raw video| S3[/AWS S3<br/>Raw Videos/]
-    ES -->|FFmpeg Encoding| FFmpeg[FFmpeg<br/>HLS Transcoding]
+    subgraph Event_Bus[Event Bus]
+        KAFKA[(Apache Kafka<br/>Port 9092)]
+    end
+
+    subgraph Encoding_Service[Encoding Service]
+        ES[Encoding Service<br/>Port 8083]
+    end
+
+    subgraph Storage[Object Storage]
+        S3[/AWS S3<br/>Raw & Encoded Videos/]
+    end
+
+    subgraph Processing[Video Processing]
+        FFMPEG[FFmpeg<br/>HLS Transcoding]
+    end
+
+    KAFKA -->|Consumes: video.uploaded| ES
+    ES -->|Downloads raw video| S3
+    ES -->|FFmpeg Encoding| FFMPEG
     ES -->|Uploads encoded| S3
     ES -->|Publishes: video.encoded| KAFKA
-    
+
     classDef service fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef messaging fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     classDef processing fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-    
+
     class ES service
     class S3 storage
     class KAFKA messaging
-    class FFmpeg processing
+    class FFMPEG processing
 ```
 
 ## 🛠️ Technologies
@@ -82,7 +98,7 @@ spring:
                 type: com.netflix.encoding.service.event.VideoUploadedEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serialization.JsonSerializer
 server:
   port: 8083
 

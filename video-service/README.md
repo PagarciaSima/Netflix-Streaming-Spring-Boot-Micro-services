@@ -23,14 +23,30 @@ The **Video Service** is responsible for handling video file uploads. It accepts
 
 ```mermaid
 graph TB
-    Client[Netflix Client<br/>Angular 17] -->|HTTP POST /upload| VS[Video Service<br/>Port 8082]
-    VS -->|Upload raw video| S3[/AWS S3<br/>Raw Videos/]
-    VS -->|Publish: video.uploaded| KAFKA[(Apache Kafka<br/>Port 9092)]
-    
+    subgraph Client
+        NG[Netflix Client<br/>Angular 17]
+    end
+
+    subgraph Video_Service[Video Service]
+        VS[Video Service<br/>Port 8082]
+    end
+
+    subgraph Storage[Object Storage]
+        S3[/AWS S3<br/>Raw Videos/]
+    end
+
+    subgraph Event_Bus[Event Bus]
+        KAFKA[(Apache Kafka<br/>Port 9092)]
+    end
+
+    NG -->|HTTP POST /upload| VS
+    VS -->|Upload raw video| S3
+    VS -->|Publish: video.uploaded| KAFKA
+
     classDef service fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef messaging fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    
+
     class VS service
     class S3 storage
     class KAFKA messaging
@@ -72,7 +88,7 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serialization.JsonSerializer
   servlet:
     multipart:
       max-file-size: 2GB
@@ -119,6 +135,7 @@ The service will be available at `http://localhost:8082`
 ### Swagger UI
 
 API documentation available at:
+
 ```
 http://localhost:8082/swagger-ui/index.html
 ```

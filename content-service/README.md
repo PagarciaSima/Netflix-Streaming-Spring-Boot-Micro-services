@@ -23,15 +23,32 @@ The **Content Service** is responsible for managing the movie catalog. It provid
 
 ```mermaid
 graph TB
-    Client[Netflix Client<br/>Angular 17] -->|HTTP REST| CS[Content Service<br/>Port 8081]
-    CS -->|JDBC| MYSQL[(MySQL 8.0<br/>content_db<br/>Port 3306)]
-    CS -.->|Consumes: video.uploaded<br/>video.encoded| KAFKA[(Apache Kafka<br/>Port 9092)]
-    CS -.->|Publishes: N/A| KAFKA
-    
+    subgraph Client
+        NG[Netflix Client<br/>Angular 17]
+    end
+
+    subgraph Content_Service[Content Service]
+        CS[Content Service<br/>Port 8081]
+    end
+
+    subgraph Data_Layer[Data Layer]
+        MYSQL[(MySQL 8.0<br/>content_db<br/>Port 3306)]
+    end
+
+    subgraph Event_Bus[Event Bus]
+        KAFKA[(Apache Kafka<br/>Port 9092)]
+    end
+
+    NG -->|HTTP REST| CS
+    CS -->|JDBC| MYSQL
+    CS -.->|Consumes: video.uploaded<br/>video.encoded| KAFKA
+
+    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef service fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef data fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef messaging fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    
+
+    class NG client
     class CS service
     class MYSQL data
     class KAFKA messaging
@@ -134,6 +151,7 @@ The service will be available at `http://localhost:8081`
 ### Swagger UI
 
 API documentation available at:
+
 ```
 http://localhost:8081/swagger-ui/index.html
 ```

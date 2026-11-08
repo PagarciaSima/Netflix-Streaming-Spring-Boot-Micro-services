@@ -24,17 +24,37 @@ The **Streaming Service** is responsible for delivering streaming content to cli
 
 ```mermaid
 graph TB
-    Client[Netflix Client<br/>HLS.js Player] -->|HTTP GET /stream| SS[Streaming Service<br/>Port 8084]
-    KAFKA[(Apache Kafka<br/>Port 9092)] -->|Consumes: video.encoded| SS
-    SS -->|Cache playlist key| REDIS[(Redis<br/>Port 6379)]
-    SS -->|Generate signed URL| S3[/AWS S3<br/>Encoded Videos/]
+    subgraph Client
+        NG[Netflix Client<br/>HLS.js Player]
+    end
+
+    subgraph Event_Bus[Event Bus]
+        KAFKA[(Apache Kafka<br/>Port 9092)]
+    end
+
+    subgraph Streaming_Service[Streaming Service]
+        SS[Streaming Service<br/>Port 8084]
+    end
+
+    subgraph Cache[Cache Layer]
+        REDIS[(Redis<br/>Port 6379)]
+    end
+
+    subgraph Storage[Object Storage]
+        S3[/AWS S3<br/>Encoded Videos/]
+    end
+
+    NG -->|HTTP GET /stream| SS
+    KAFKA -->|Consumes: video.encoded| SS
+    SS -->|Cache playlist key| REDIS
+    SS -->|Generate signed URL| S3
     SS -->|Fetch playlist| S3
-    
+
     classDef service fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef cache fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
     classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef messaging fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    
+
     class SS service
     class REDIS cache
     class S3 storage
@@ -129,6 +149,7 @@ The service will be available at `http://localhost:8084`
 ### Swagger UI
 
 API documentation available at:
+
 ```
 http://localhost:8084/swagger-ui/index.html
 ```
