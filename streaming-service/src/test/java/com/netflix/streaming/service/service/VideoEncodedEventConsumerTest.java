@@ -1,6 +1,5 @@
 package com.netflix.streaming.service.service;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import com.netflix.streaming.service.event.VideoEncodedEvent;
+
 
 /**
  * Unit tests for {@link VideoEncodedEventConsumer}.

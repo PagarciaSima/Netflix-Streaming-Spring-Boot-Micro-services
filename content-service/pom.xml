@@ -85,6 +85,19 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
+        <!-- Spring Retry for Kafka consumer retries -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!-- AspectJ weaver required by @EnableRetry -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.23</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

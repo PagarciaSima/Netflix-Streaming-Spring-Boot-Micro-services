@@ -2,8 +2,10 @@ package com.netflix.content.service.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,9 +52,14 @@ public class ContentController {
             @ApiResponse(responseCode = "201", description = "Movie created successfully", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data (validation failed)")
     })
+    @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
     public ResponseEntity<MovieResponse> addMovie(
             @Valid @RequestBody MovieRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET, POST, PUT, DELETE, OPTIONS")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
                 .body(contentService.addMovie(request));
     }
 
@@ -68,8 +75,14 @@ public class ContentController {
             @ApiResponse(responseCode = "200", description = "List of movies", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
             @ApiResponse(responseCode = "404", description = "No movies found")
     })
+    @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
     public ResponseEntity<List<MovieResponse>> getAllMovies() {
-        return ResponseEntity.ok(contentService.getAllMovies());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET, POST, PUT, DELETE, OPTIONS")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
+                .body(contentService.getAllMovies());
     }
 
     /**
@@ -85,6 +98,7 @@ public class ContentController {
             @ApiResponse(responseCode = "200", description = "Movie found", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
+    @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
     public ResponseEntity<MovieResponse> getMovieById(
             @Parameter(description = "Movie ID", required = true) @PathVariable String movieId) {
         return ResponseEntity.ok(contentService.getMovieById(movieId));
@@ -103,6 +117,7 @@ public class ContentController {
             @ApiResponse(responseCode = "200", description = "List of movies of the genre", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
             @ApiResponse(responseCode = "404", description = "No movies found for that genre")
     })
+    @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
     public ResponseEntity<List<MovieResponse>> getMoviesByGenre(
             @Parameter(description = "Movie genre", required = true) @PathVariable Genre genre) {
         return ResponseEntity.ok(contentService.getMoviesByGenre(genre));
@@ -121,6 +136,7 @@ public class ContentController {
             @ApiResponse(responseCode = "200", description = "List of found movies", content = @Content(schema = @Schema(implementation = MovieResponse.class))),
             @ApiResponse(responseCode = "400", description = "The title parameter is required")
     })
+    @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
     public ResponseEntity<List<MovieResponse>> searchMovies(
             @Parameter(description = "Texto a buscar en el título", required = true) @RequestParam String title) {
         return ResponseEntity.ok(contentService.searchMovies(title));

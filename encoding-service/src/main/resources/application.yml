@@ -18,7 +18,7 @@ spring:
                 headers: false
             value:
               default:
-                type: com.netflix.encodingservice.event.VideoUploadedEvent
+                type: com.netflix.encoding.service.event.VideoUploadedEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
